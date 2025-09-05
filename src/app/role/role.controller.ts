@@ -1,3 +1,4 @@
+import { Auth } from "@/app/auth/jwt/jwt.decorator";
 import { CreateRoleDto, UpdateRoleDto } from "@/app/role/role.dto";
 import { RoleService } from "@/app/role/role.service";
 import { CustomValidationPipe } from "@/common/custom-validation.pipe";
@@ -7,12 +8,13 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post } from "@
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 @ApiTags('roles')
-@ApiBearerAuth('bearer') // harus sama dengan nama scheme di main.ts
+@ApiBearerAuth('access-token') // harus sama dengan nama scheme di main.ts
 @Controller('roles')
 export class RoleController {
     constructor(private readonly roleService: RoleService){}
 
     @Post()
+    @Auth()
     async create(@Body(new CustomValidationPipe(400)) roleDto: CreateRoleDto): Promise<ResponseWrapper<Role>> {
         const role = await this.roleService.create(roleDto.name, roleDto.description);
         return {
@@ -23,6 +25,7 @@ export class RoleController {
     }
 
     @Get()
+    @Auth()
     async getAll(): Promise<ResponseWrapper<Role[]>> {
         const roles = await this.roleService.findAll();
         return {
@@ -33,6 +36,7 @@ export class RoleController {
     }
 
     @Patch(':id')
+    @Auth()
     async update(@Param('id') id: number, @Body() updateDto: UpdateRoleDto): Promise<ResponseWrapper<Role>> {
         const role = await this.roleService.update(id, updateDto.name, updateDto.description);
         return {
@@ -43,6 +47,7 @@ export class RoleController {
     }
 
     @Delete(':id')
+    @Auth()
     async delete(@Param('id') id: number): Promise<{status: HttpStatus, message: string}> {
         await this.roleService.softDelete(id);
         return {

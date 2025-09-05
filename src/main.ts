@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CustomValidationPipe } from '@/common/custom-validation.pipe';
 import { useContainer } from 'class-validator';
 import { RouteService } from '@/app/route/route.service';
+import { HttpExceptionFilter } from '@/common/custom-filter.exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,9 +13,9 @@ async function bootstrap() {
   const _ = scanner.scanRoutes()
   // console.log(routes);
 
-
   // Enable DI untuk validator custom
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new CustomValidationPipe(400));
 
 
@@ -30,6 +31,7 @@ async function bootstrap() {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
+      name: 'Authorization'
     }, 'access-token')
     .build();
   

@@ -5,6 +5,7 @@ import { DatabaseModule } from '@/database/database.module';
 import { RoleModule } from '@/app/role/role.module';
 import { UserModule } from '@/app/user/user.module';
 import { RouteModule } from '@/app/route/route.module';
+import { AuthModule } from '@/app/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RouteModule } from '@/app/route/route.module';
     RoleModule,
     UserModule,
     RouteModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
