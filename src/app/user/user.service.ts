@@ -2,16 +2,15 @@ import { CreateUserDto, UpdateUserDto } from "@/app/user/user.dto";
 import { User } from "@/database/entities/user.entity";
 import { NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { Role } from "@/database/entities/role.entity";
-import { RoleService } from "@/app/role/role.service";
 
 
 export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepo: Repository<User>,
-        private readonly roleService: RoleService
+        @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
     ){}
 
     async findAll(): Promise<User[]> {
@@ -39,7 +38,7 @@ export class UserService {
         let roles: Role[] = []; 
         
         if(userDto.roles.length>0) {
-            roles = await this.roleService.findByIds(userDto.roles);
+            roles = await this.roleRepo.find({where: { id: In(userDto.roles) }});
         }
 
         const hashedPassword = await bcrypt.hash(userDto.password, 10);
@@ -58,7 +57,7 @@ export class UserService {
    async update(userDto: UpdateUserDto): Promise<User> {
         let roles: Role[] = [];
         if(userDto.roles.length>0) {
-            roles = await this.roleService.findByIds(userDto.roles);
+            roles = await this.roleRepo.find({ where: { id: In(userDto.roles) }});
         }
         const user = await this.findOne(userDto.id);
         user.name = userDto.name;

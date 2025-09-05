@@ -1,4 +1,3 @@
-import { RoleModule } from "@/app/role/role.module";
 import { UserController } from "@/app/user/user.controller";
 import { UserService } from "@/app/user/user.service";
 import { IsEmailUniqueConstraint } from "@/common/email.validator";
@@ -10,7 +9,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 @Module({
     imports: [
         TypeOrmModule.forFeature([User, Role]),
-        RoleModule,
     ],
     providers: [UserService, IsEmailUniqueConstraint],
     controllers: [UserController],

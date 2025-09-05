@@ -4,20 +4,22 @@ import { User } from "@/database/entities/user.entity";
 import { HttpStatus, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from 'bcrypt';
 import { instanceToPlain } from "class-transformer";
+import { Repository } from "typeorm";
 
 
 @Injectable()
 export class AuthService{
    constructor(
-      private readonly userService: UserService,
+      @InjectRepository(User) private readonly userRepo: Repository<User>,
       private readonly jwtService: JwtService,
       private readonly configService: ConfigService,
    ){}
 
    async login(auth: AuthLoginDto): Promise<LoginResponse> {
-      const user = await this.userService.findByEmail(auth.identity);
+      const user = await this.userRepo.findOne({ where: { email: auth.identity } });
       if(!user) {
          throw new UnauthorizedException(`Email you enter is wrong`);
       }
@@ -50,7 +52,7 @@ export class AuthService{
             secret: this.configService.get('JWT_REFRESH_SECRET'),
          });
 
-         const user = await this.userService.findByEmail(payload.email);
+         const user = await this.userRepo.findOne({ where: { email: payload.email } });
          if (!user) throw new UnauthorizedException('User not found');
          const plainUser = instanceToPlain(user);
          const token = this.jwtService.sign(plainUser, {
