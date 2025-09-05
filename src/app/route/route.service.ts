@@ -92,4 +92,9 @@ export class RouteService {
       // console.log(role);
       return routes;
    }
+
+   async list(): Promise<Route[]> {
+      const routes = await this.routeRepo.find();
+      return routes;
+   }
 }
