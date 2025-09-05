@@ -34,6 +34,16 @@ export class RoleController {
             data: roles,
         };
     }
+    @Get(':id')
+    @Auth()
+    async get(@Param('id') id: number): Promise<ResponseWrapper<Role>> {
+        const role = await this.roleService.findOne(id);
+        return {
+            status: HttpStatus.OK,
+            message: "founded",
+            data: role,
+        };
+    }
 
     @Patch(':id')
     @Auth()

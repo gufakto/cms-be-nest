@@ -19,7 +19,10 @@ export class AuthService{
    ){}
 
    async login(auth: AuthLoginDto): Promise<LoginResponse> {
-      const user = await this.userRepo.findOne({ where: { email: auth.identity } });
+      const user = await this.userRepo.findOne({ 
+         where: { email: auth.identity },
+         relations: ['roles']
+      });
       if(!user) {
          throw new UnauthorizedException(`Email you enter is wrong`);
       }
@@ -34,8 +37,8 @@ export class AuthService{
          expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
       });
       const refreshToken = this.jwtService.sign(plainUser, {
-         secret: this.configService.get<string>('JWT_SECRET'),
-         expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
+         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+         expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
       });
       return {
          status: HttpStatus.OK,
@@ -60,8 +63,8 @@ export class AuthService{
             expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
          });
          const refreshToken = this.jwtService.sign(plainUser, {
-            secret: this.configService.get<string>('JWT_SECRET'),
-            expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
+            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+            expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
          });
          return {
             status: HttpStatus.OK,
@@ -71,6 +74,7 @@ export class AuthService{
             user: user,
          }
       } catch(err){
+         console.log(err)
          throw new UnauthorizedException(`invalid refresh token`);
       }
    }

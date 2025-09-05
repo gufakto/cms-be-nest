@@ -19,7 +19,7 @@ export class RouteService {
    ){}
 
    
-   async bulkInsert(routes: Route[]) :Promise<number[]> {
+   async _bulkInsert(routes: Route[]) :Promise<number[]> {
       const dataToUpsert = routes.map(({ id, ...rest }) => rest);
       const data: InsertResult = await this.routeRepo.upsert(dataToUpsert, ['method', 'path']); 
       return data.identifiers.map(v=> v.id);
@@ -86,7 +86,7 @@ export class RouteService {
       }
 
       
-      const ids = await this.bulkInsert(routes);
+      const ids = await this._bulkInsert(routes);
       const routesRes = await this.routeRepo.find({ where: { id: In(ids) } }); 
       const role = await this._assignroutesToDefault(routesRes);
       // console.log(role);
